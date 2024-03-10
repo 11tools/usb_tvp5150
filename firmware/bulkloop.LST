@@ -1,0 +1,590 @@
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BULKLOOP
+OBJECT MODULE PLACED IN bulkloop.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE bulkloop.c OPTIMIZE(8,SPEED) DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          //-----------------------------------------------------------------------------
+   2          //   File:      bulkloop.c
+   3          //   Contents:  Hooks required to implement USB peripheral function.
+   4          //
+   5          // $Archive: /USB/Examples/FX2LP/bulkloop/bulkloop.c $
+   6          // $Date: 3/23/05 2:55p $
+   7          // $Revision: 4 $
+   8          //
+   9          //
+  10          //-----------------------------------------------------------------------------
+  11          // Copyright 2003, Cypress Semiconductor Corporation
+  12          //-----------------------------------------------------------------------------
+  13          #pragma NOIV               // Do not generate interrupt vectors
+  14          
+  15          #include "fx2.h"
+  16          #include "fx2regs.h"
+  17          #include "syncdly.h"            // SYNCDELAY macro
+  18          #include "twi.h"
+  19          
+  20          extern BOOL GotSUD;             // Received setup data flag
+  21          extern BOOL Sleep;
+  22          extern BOOL Rwuen;
+  23          extern BOOL Selfpwr;
+  24          
+  25          BYTE Configuration;             // Current configuration
+  26          BYTE AlternateSetting;          // Alternate settings
+  27          
+  28          #define VR_NAKALL_ON    0xD0
+  29          #define VR_NAKALL_OFF   0xD1
+  30          
+  31          //-----------------------------------------------------------------------------
+  32          // Task Dispatcher hooks
+  33          //   The following hooks are called by the task dispatcher.
+  34          //-----------------------------------------------------------------------------
+  35          
+  36          sbit led = IOA^3;
+  37          
+  38          
+  39          /*
+  40          unsigned char cmd5150[][2] = 
+  41          {
+  42            {0x03, 0x0f},
+  43           
+  44            {0x0D, 0x47}, 
+  45            
+  46            {0x0f, 0x0a},
+  47          
+  48            {0x11, 0x4d},
+  49            
+  50            {0x12, 0x02},
+  51              
+  52            {0x13, 0xe4},
+  53                
+  54            {0x14, 0x02},
+  55          };*/
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 2   
+
+  56          
+  57          
+  58          unsigned char cmd5150[][2] = 
+  59          {
+  60            {0x00, 0x00},
+  61          
+  62            {0x03, 0x0f},
+  63           
+  64            {0x0D, 0x47}, 
+  65            
+  66            {0x0f, 0x0a},
+  67          };
+  68          
+  69          
+  70          /*
+  71          xdata unsigned char cmd5150[][2] = 
+  72          {
+  73                   {0x00, 0x00},
+  74                   {0x03, 0x0f},
+  75                   {0x0A, 0x80},
+  76                   {0x0B, 0x00},
+  77                   {0x0C, 0x80},
+  78                   {0x0D, 0x47},
+  79                   {0x0E, 0x00},
+  80                   {0x0F, 0x02},
+  81                   {0x11, 0x04},
+  82                   {0x12, 0x00},
+  83                   {0x13, 0x04},
+  84                   {0x14, 0x00},
+  85                   {0x15, 0x01},
+  86                   {0x16, 0x80},
+  87                   {0x18, 0x00},
+  88                   {0x19, 0x00},
+  89                   {0x1A, 0x0c},
+  90                   {0x1B, 0x14},
+  91                   {0x1C, 0x00},
+  92                   {0x1D, 0x00},
+  93                   {0x1E, 0x00},
+  94                   {0x28, 0x00},
+  95                   {0xB1, 0x00},
+  96                   {0xB2, 0x00},
+  97                   {0xB3, 0x00},
+  98                   {0xB4, 0x00},
+  99                   {0xB5, 0x00},
+ 100                   {0xB6, 0x00},
+ 101                   {0xB7, 0x00},
+ 102                   {0xB8, 0x00},
+ 103                   {0xB9, 0x00},
+ 104                   {0xBA, 0x00},
+ 105                   {0xBB, 0x00},
+ 106                   {0xC0, 0x00},
+ 107                   {0xC1, 0x00},
+ 108                   {0xC2, 0x04},
+ 109                   {0xC3, 0xDC},
+ 110                   {0xC4, 0x0F},
+ 111                   {0xC5, 0x00},
+ 112                   {0xC8, 0x80},
+ 113                   {0xC9, 0x00},
+ 114                   {0xCA, 0x00},
+ 115                   {0xCB, 0x59},
+ 116                   {0xCC, 0x03},
+ 117                   {0xCD, 0x01},
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 3   
+
+ 118                   {0xCE, 0x00},
+ 119                   {0xCF, 0x00},
+ 120                   {0xD0, 0xFF},
+ 121                   {0xD1, 0xFF},
+ 122                   {0xD2, 0xFF},
+ 123                   {0xD3, 0xFF},
+ 124                   {0xD4, 0xFF},
+ 125                   {0xD5, 0xFF},
+ 126                   {0xD6, 0xFF},
+ 127                   {0xD7, 0xFF},
+ 128                   {0xD8, 0xFF},
+ 129                   {0xD9, 0xFF},
+ 130                   {0xDA, 0xFF},
+ 131                   {0xDB, 0xFF},
+ 132                   {0xDC, 0xFF},
+ 133                   {0xDD, 0xFF},
+ 134                   {0xDE, 0xFF},
+ 135                   {0xDF, 0xFF},
+ 136                   {0xE0, 0xFF},
+ 137                   {0xE1, 0xFF},
+ 138                   {0xE2, 0xFF},
+ 139                   {0xE3, 0xFF},
+ 140                   {0xE4, 0xFF},
+ 141                   {0xE5, 0xFF},
+ 142                   {0xE6, 0xFF},
+ 143                   {0xE7, 0xFF},
+ 144                   {0xE8, 0xFF},
+ 145                   {0xE9, 0xFF},
+ 146                   {0xEA, 0xFF},
+ 147                   {0xEB, 0xFF},
+ 148                   {0xEC, 0xFF},
+ 149                   {0xED, 0xFF},
+ 150                   {0xEE, 0xFF},
+ 151                   {0xEF, 0xFF},
+ 152                   {0xF0, 0xFF},
+ 153                   {0xF1, 0xFF},
+ 154                   {0xF2, 0xFF},
+ 155                   {0xF3, 0xFF},
+ 156                   {0xF4, 0xFF},
+ 157                   {0xF5, 0xFF},
+ 158                   {0xF6, 0xFF},
+ 159                   {0xF7, 0xFF},
+ 160                   {0xF8, 0xFF},
+ 161                   {0xF9, 0xFF},
+ 162                   {0xFA, 0xFF},
+ 163                   {0xFB, 0xFF},
+ 164                   {0xFC, 0x7F},  
+ 165          };
+ 166          */
+ 167          void init_tvp5150()
+ 168          {
+ 169   1        int a;
+ 170   1        for( a = 0 ; a < sizeof(cmd5150)/2;a++)
+ 171   1        {
+ 172   2          Write_One_Byte(0XBA,cmd5150[a][0],cmd5150[a][1]);
+ 173   2        }
+ 174   1      }
+ 175          
+ 176          
+ 177          
+ 178          
+ 179          
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 4   
+
+ 180          
+ 181          void TD_Init(void)             // Called once at startup
+ 182          {
+ 183   1         // set the CPU clock to 48MHz
+ 184   1         CPUCS = ((CPUCS & ~bmCLKSPD) | bmCLKSPD1) ;
+ 185   1      
+ 186   1         // Set Slave sync FIFO mode  
+ 187   1         //IFCONFIG |=  0x43;           
+ 188   1      
+ 189   1        // Registers which require a synchronization delay, see section 15.14
+ 190   1        // FIFORESET        FIFOPINPOLAR
+ 191   1        // INPKTEND         OUTPKTEND
+ 192   1        // EPxBCH:L         REVCTL
+ 193   1        // GPIFTCB3         GPIFTCB2
+ 194   1        // GPIFTCB1         GPIFTCB0
+ 195   1        // EPxFIFOPFH:L     EPxAUTOINLENH:L
+ 196   1        // EPxFIFOCFG       EPxGPIFFLGSEL
+ 197   1        // PINFLAGSxx       EPxFIFOIRQ
+ 198   1        // EPxFIFOIE        GPIFIRQ
+ 199   1        // GPIFIE           GPIFADRH:L
+ 200   1        // UDMACRCH:L       EPxGPIFTRIG
+ 201   1        // GPIFTRIG
+ 202   1        
+ 203   1        // Note: The pre-REVE EPxGPIFTCH/L register are affected, as well...
+ 204   1        //      ...these have been replaced by GPIFTC[B3:B0] registers
+ 205   1      
+ 206   1        IFCONFIG =0x43;//那1車?赤a2?那㊣?車㏒?IFCLK那?豕?2?﹞∩?辰
+ 207   1        
+ 208   1        SYNCDELAY;
+ 209   1        EP2CFG=0xA0; //D豕辰a谷豕?“?a???o3?㏒??????o3???∩車D??a512℅??迆
+ 210   1        SYNCDELAY;
+ 211   1        EP4CFG=0x00;
+ 212   1        SYNCDELAY;
+ 213   1        EP6CFG=0xE0;
+ 214   1        SYNCDELAY;
+ 215   1        EP8CFG=0x00;
+ 216   1        
+ 217   1        SYNCDELAY;
+ 218   1        FIFORESET = 0x80;             // activate NAK-ALL to avoid race conditions
+ 219   1        SYNCDELAY;                    // see TRM section 15.14
+ 220   1        FIFORESET = 0x02;             // reset, FIFO 2
+ 221   1        SYNCDELAY;                    // 
+ 222   1        FIFORESET = 0x06;             // reset, FIFO 6
+ 223   1        SYNCDELAY;                    // 
+ 224   1        FIFORESET = 0x00;             // deactivate NAK-ALL
+ 225   1        
+ 226   1        SYNCDELAY;
+ 227   1        PINFLAGSAB = 0xE6;          // FLAGA - fixed EP6PF, FLAGB - fixed EP6FF
+ 228   1        SYNCDELAY;
+ 229   1        PINFLAGSCD = 0xDE;          // FLAGC - fixed EP2EF, FLAGD - reserved
+ 230   1        SYNCDELAY;
+ 231   1        PORTACFG |=  0x00;  //0x40;             // SLCS, set alt. func. of PA7 pin
+ 232   1        SYNCDELAY;
+ 233   1        FIFOPINPOLAR = 0x00;          // all signals active low㏒?
+ 234   1        SYNCDELAY;
+ 235   1      
+ 236   1         OEA|=0x0F;
+ 237   1          //D?車迆64℅??迆車DD∫
+ 238   1          //EP6FIFOPFH=0x00; //DEIS PKSTAT  PK2 PK1 PK0 0 PFC9 PFC8
+ 239   1          //EP6FIFOPFL=0x40; //PFC7 PFC6 PFC5 PFC4 PFC3 PFC2 PFC1 PFC0
+ 240   1        
+ 241   1        // handle the case where we were already in AUTO mode...
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 5   
+
+ 242   1        EP2FIFOCFG = 0x01;            // AUTOOUT=0, WORDWIDE=1
+ 243   1        SYNCDELAY;
+ 244   1        
+ 245   1        EP2FIFOCFG = 0x11;            // AUTOOUT=1, WORDWIDE=1
+ 246   1        SYNCDELAY;
+ 247   1        
+ 248   1        
+ 249   1        EP6FIFOCFG = 0x08;            // AUTOIN=1, ZEROLENIN=0, WORDWIDE=1
+ 250   1        SYNCDELAY;
+ 251   1      
+ 252   1        //IO谷豕??
+ 253   1        PORTCCFG=0x00;
+ 254   1        PORTECFG=0x00;
+ 255   1        OEC=0x00;
+ 256   1        OEE=0xff;
+ 257   1        //∩??迆3?那??‘
+ 258   1      
+ 259   1      //  PA3=0;
+ 260   1        PA0=1;
+ 261   1        ProbeSlaveAddr();
+ 262   1        init_tvp5150();
+ 263   1        
+ 264   1      
+ 265   1      }
+ 266          
+ 267          
+ 268          
+ 269          
+ 270          
+ 271          void TD_Poll(void)              // Called repeatedly while the device is idle
+ 272          {
+ 273   1        
+ 274   1           int i;
+ 275   1      
+ 276   1      /*   // if there is some data in EP2 OUT, re-arm it
+ 277   1         if(!(EP2468STAT & bmEP2EMPTY))
+ 278   1         {
+ 279   1            SYNCDELAY;                // 
+ 280   1            EP2BCL = 0x80;
+ 281   1         }
+ 282   1      
+ 283   1         // if EP6 IN is available, re-arm it
+ 284   1         if(!(EP2468STAT & bmEP6FULL))
+ 285   1         {
+ 286   1            SYNCDELAY;                // 
+ 287   1            EP6BCH = 0x02;
+ 288   1            SYNCDELAY;                // 
+ 289   1            EP6BCL = 0x00;
+ 290   1         }
+ 291   1      */
+ 292   1      
+ 293   1      }
+*** WARNING C280 IN LINE 274 OF bulkloop.c: 'i': unreferenced local variable
+ 294          
+ 295          BOOL TD_Suspend(void)          // Called before the device goes into suspend mode
+ 296          {
+ 297   1         return(TRUE);
+ 298   1      }
+ 299          
+ 300          BOOL TD_Resume(void)          // Called after the device resumes
+ 301          {
+ 302   1         return(TRUE);
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 6   
+
+ 303   1      }
+ 304          
+ 305          //-----------------------------------------------------------------------------
+ 306          // Device Request hooks
+ 307          //   The following hooks are called by the end point 0 device request parser.
+ 308          //-----------------------------------------------------------------------------
+ 309          
+ 310          BOOL DR_GetDescriptor(void)
+ 311          {
+ 312   1         return(TRUE);
+ 313   1      }
+ 314          
+ 315          BOOL DR_SetConfiguration(void)   // Called when a Set Configuration command is received
+ 316          {
+ 317   1         Configuration = SETUPDAT[2];
+ 318   1         return(TRUE);            // Handled by user code
+ 319   1      }
+ 320          
+ 321          BOOL DR_GetConfiguration(void)   // Called when a Get Configuration command is received
+ 322          {
+ 323   1         EP0BUF[0] = Configuration;
+ 324   1         EP0BCH = 0;
+ 325   1         EP0BCL = 1;
+ 326   1         return(TRUE);            // Handled by user code
+ 327   1      }
+ 328          
+ 329          BOOL DR_SetInterface(void)       // Called when a Set Interface command is received
+ 330          {
+ 331   1         AlternateSetting = SETUPDAT[2];
+ 332   1         return(TRUE);            // Handled by user code
+ 333   1      }
+ 334          
+ 335          BOOL DR_GetInterface(void)       // Called when a Set Interface command is received
+ 336          {
+ 337   1         EP0BUF[0] = AlternateSetting;
+ 338   1         EP0BCH = 0;
+ 339   1         EP0BCL = 1;
+ 340   1         return(TRUE);            // Handled by user code
+ 341   1      }
+ 342          
+ 343          BOOL DR_GetStatus(void)
+ 344          {
+ 345   1         return(TRUE);
+ 346   1      }
+ 347          
+ 348          BOOL DR_ClearFeature(void)
+ 349          {
+ 350   1         return(TRUE);
+ 351   1      }
+ 352          
+ 353          BOOL DR_SetFeature(void)
+ 354          {
+ 355   1         return(TRUE);
+ 356   1      }
+ 357          
+ 358          BOOL DR_VendorCmnd(void)
+ 359          {
+ 360   1        BYTE tmp;
+ 361   1        
+ 362   1        switch (SETUPDAT[1])
+ 363   1        {
+ 364   2           case VR_NAKALL_ON:
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 7   
+
+ 365   2              tmp = FIFORESET;
+ 366   2              tmp |= bmNAKALL;      
+ 367   2              SYNCDELAY;                    
+ 368   2              FIFORESET = tmp;
+ 369   2              break;
+ 370   2           case VR_NAKALL_OFF:
+ 371   2              tmp = FIFORESET;
+ 372   2              tmp &= ~bmNAKALL;      
+ 373   2              SYNCDELAY;                    
+ 374   2              FIFORESET = tmp;
+ 375   2              break;
+ 376   2           default:
+ 377   2              return(TRUE);
+ 378   2        }
+ 379   1      
+ 380   1        return(FALSE);
+ 381   1      }
+ 382          
+ 383          //-----------------------------------------------------------------------------
+ 384          // USB Interrupt Handlers
+ 385          //   The following functions are called by the USB interrupt jump table.
+ 386          //-----------------------------------------------------------------------------
+ 387          
+ 388          // Setup Data Available Interrupt Handler
+ 389          void ISR_Sudav(void) interrupt 0
+ 390          {
+ 391   1         GotSUD = TRUE;            // Set flag
+ 392   1         EZUSB_IRQ_CLEAR();
+ 393   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 394   1      }
+ 395          
+ 396          // Setup Token Interrupt Handler
+ 397          void ISR_Sutok(void) interrupt 0
+ 398          {
+ 399   1         EZUSB_IRQ_CLEAR();
+ 400   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 401   1      }
+ 402          
+ 403          void ISR_Sof(void) interrupt 0
+ 404          {
+ 405   1         EZUSB_IRQ_CLEAR();
+ 406   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 407   1      }
+ 408          
+ 409          void ISR_Ures(void) interrupt 0
+ 410          {
+ 411   1         // whenever we get a USB reset, we should revert to full speed mode
+ 412   1         pConfigDscr = pFullSpeedConfigDscr;
+ 413   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 414   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 415   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 416   1      
+ 417   1         EZUSB_IRQ_CLEAR();
+ 418   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 419   1      }
+ 420          
+ 421          void ISR_Susp(void) interrupt 0
+ 422          {
+ 423   1         Sleep = TRUE;
+ 424   1         EZUSB_IRQ_CLEAR();
+ 425   1         USBIRQ = bmSUSP;
+ 426   1      }
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 8   
+
+ 427          
+ 428          void ISR_Highspeed(void) interrupt 0
+ 429          {
+ 430   1         if (EZUSB_HIGHSPEED())
+ 431   1         {
+ 432   2            pConfigDscr = pHighSpeedConfigDscr;
+ 433   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 434   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 435   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 436   2         }
+ 437   1      
+ 438   1         EZUSB_IRQ_CLEAR();
+ 439   1         USBIRQ = bmHSGRANT;
+ 440   1      }
+ 441          void ISR_Ep0ack(void) interrupt 0
+ 442          {
+ 443   1      }
+ 444          void ISR_Stub(void) interrupt 0
+ 445          {
+ 446   1      }
+ 447          void ISR_Ep0in(void) interrupt 0
+ 448          {
+ 449   1      }
+ 450          void ISR_Ep0out(void) interrupt 0
+ 451          {
+ 452   1      }
+ 453          void ISR_Ep1in(void) interrupt 0
+ 454          {
+ 455   1      }
+ 456          void ISR_Ep1out(void) interrupt 0
+ 457          {
+ 458   1      }
+ 459          void ISR_Ep2inout(void) interrupt 0
+ 460          {
+ 461   1      }
+ 462          void ISR_Ep4inout(void) interrupt 0
+ 463          {
+ 464   1      }
+ 465          void ISR_Ep6inout(void) interrupt 0
+ 466          {
+ 467   1      }
+ 468          void ISR_Ep8inout(void) interrupt 0
+ 469          {
+ 470   1      }
+ 471          void ISR_Ibn(void) interrupt 0
+ 472          {
+ 473   1      }
+ 474          void ISR_Ep0pingnak(void) interrupt 0
+ 475          {
+ 476   1      }
+ 477          void ISR_Ep1pingnak(void) interrupt 0
+ 478          {
+ 479   1      }
+ 480          void ISR_Ep2pingnak(void) interrupt 0
+ 481          {
+ 482   1      }
+ 483          void ISR_Ep4pingnak(void) interrupt 0
+ 484          {
+ 485   1      }
+ 486          void ISR_Ep6pingnak(void) interrupt 0
+ 487          {
+ 488   1      }
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 9   
+
+ 489          void ISR_Ep8pingnak(void) interrupt 0
+ 490          {
+ 491   1      }
+ 492          void ISR_Errorlimit(void) interrupt 0
+ 493          {
+ 494   1      }
+ 495          void ISR_Ep2piderror(void) interrupt 0
+ 496          {
+ 497   1      }
+ 498          void ISR_Ep4piderror(void) interrupt 0
+ 499          {
+ 500   1      }
+ 501          void ISR_Ep6piderror(void) interrupt 0
+ 502          {
+ 503   1      }
+ 504          void ISR_Ep8piderror(void) interrupt 0
+ 505          {
+ 506   1      }
+ 507          void ISR_Ep2pflag(void) interrupt 0
+ 508          {
+ 509   1      }
+ 510          void ISR_Ep4pflag(void) interrupt 0
+ 511          {
+ 512   1      }
+ 513          void ISR_Ep6pflag(void) interrupt 0
+ 514          {
+ 515   1      }
+ 516          void ISR_Ep8pflag(void) interrupt 0
+ 517          {
+ 518   1      }
+ 519          void ISR_Ep2eflag(void) interrupt 0
+ 520          {
+ 521   1      }
+ 522          void ISR_Ep4eflag(void) interrupt 0
+ 523          {
+ 524   1      }
+ 525          void ISR_Ep6eflag(void) interrupt 0
+ 526          {
+ 527   1      }
+ 528          void ISR_Ep8eflag(void) interrupt 0
+ 529          {
+ 530   1      }
+ 531          void ISR_Ep2fflag(void) interrupt 0
+ 532          {
+ 533   1      }
+ 534          void ISR_Ep4fflag(void) interrupt 0
+ 535          {
+ 536   1      }
+ 537          void ISR_Ep6fflag(void) interrupt 0
+ 538          {
+ 539   1      }
+ 540          void ISR_Ep8fflag(void) interrupt 0
+ 541          {
+ 542   1      }
+ 543          void ISR_GpifComplete(void) interrupt 0
+ 544          {
+ 545   1      }
+ 546          void ISR_GpifWaveform(void) interrupt 0
+ 547          {
+ 548   1      }
+
+
+C51 COMPILER V9.56.0.0   BULKLOOP                                                          11/03/2022 22:52:41 PAGE 10  
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    556    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

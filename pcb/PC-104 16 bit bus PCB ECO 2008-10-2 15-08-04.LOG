@@ -1,0 +1,67 @@
+Removed Pin From Net: NetName=DGND Pin=C29-2
+Removed Pin From Net: NetName=DGND Pin=C30-2
+Removed Pin From Net: NetName=DGND Pin=S3-1
+Removed Pin From Net: NetName=DGND Pin=S3-1
+Removed Pin From Net: NetName=DGND Pin=S4-1
+Removed Pin From Net: NetName=DGND Pin=S4-1
+Removed Member From Class: ClassName=PC-104 16 bit bus Member=C29
+Removed Member From Class: ClassName=PC-104 16 bit bus Member=C30
+Added Component: Designator=P8(HDR1X30)
+Added Component: Designator=R34(1608[0603])
+Added Component: Designator=R35(1608[0603])
+Added Component: Designator=S5(SW-6-6)
+Added Component: Designator=S6(SW-6-6)
+Added Pin To Net: NetName=IFCLK Pin=P8-1
+Added Pin To Net: NetName=PB0 Pin=P8-2
+Added Pin To Net: NetName=PB1 Pin=P8-3
+Added Pin To Net: NetName=PB2 Pin=P8-4
+Added Pin To Net: NetName=PB3 Pin=P8-5
+Added Pin To Net: NetName=PB4 Pin=P8-6
+Added Pin To Net: NetName=PB5 Pin=P8-7
+Added Pin To Net: NetName=PB6 Pin=P8-8
+Added Pin To Net: NetName=PB7 Pin=P8-9
+Added Pin To Net: NetName=CTL0 Pin=P8-10
+Added Pin To Net: NetName=CTL1 Pin=P8-11
+Added Pin To Net: NetName=CTL2 Pin=P8-12
+Added Pin To Net: NetName=PA0 Pin=P8-13
+Added Pin To Net: NetName=PA1 Pin=P8-14
+Added Pin To Net: NetName=PA2 Pin=P8-15
+Added Pin To Net: NetName=PA3 Pin=P8-16
+Added Pin To Net: NetName=PA4 Pin=P8-17
+Added Pin To Net: NetName=PA5 Pin=P8-18
+Added Pin To Net: NetName=PA6 Pin=P8-19
+Added Pin To Net: NetName=PA7 Pin=P8-20
+Added Pin To Net: NetName=PD0 Pin=P8-21
+Added Pin To Net: NetName=PD1 Pin=P8-22
+Added Pin To Net: NetName=PD2 Pin=P8-23
+Added Pin To Net: NetName=PD3 Pin=P8-24
+Added Pin To Net: NetName=PD4 Pin=P8-25
+Added Pin To Net: NetName=PD5 Pin=P8-26
+Added Pin To Net: NetName=PD6 Pin=P8-27
+Added Pin To Net: NetName=PD7 Pin=P8-28
+Added Pin To Net: NetName=SLRD Pin=P8-29
+Added Pin To Net: NetName=SLWR Pin=P8-30
+Added Pin To Net: NetName=VCC3.3 Pin=R34-2
+Added Pin To Net: NetName=VCC3.3 Pin=R35-2
+Added Pin To Net: NetName=SD7 Pin=S3-2
+Added Pin To Net: NetName=SD7 Pin=S3-2
+Added Pin To Net: NetName=IOCHK Pin=S4-2
+Added Pin To Net: NetName=IOCHK Pin=S4-2
+Added Pin To Net: NetName=BUS_RESET Pin=S5-2
+Added Pin To Net: NetName=BUS_RESET Pin=S5-2
+Added Pin To Net: NetName=SD6 Pin=S6-2
+Added Pin To Net: NetName=SD6 Pin=S6-2
+Added Pin To Net: NetName=NetR15_1 Pin=R15-1
+Added Pin To Net: NetName=NetR15_1 Pin=S4-1
+Added Pin To Net: NetName=NetR15_1 Pin=S4-1
+Added Net: Name=NetR15_1
+Added Pin To Net: NetName=NetR35_1 Pin=R35-1
+Added Pin To Net: NetName=NetR35_1 Pin=S5-1
+Added Pin To Net: NetName=NetR35_1 Pin=S5-1
+Added Net: Name=NetR35_1
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component P8 Header 30
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component R34 4.7K
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component R35 4.7K
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component S5 SW-PB
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component S6 SW-PB
+Added Room: Name=PC-104 16 bit bus

@@ -1,0 +1,9 @@
+Added Pin To Net: NetName=NetR14_1 Pin=R14-1
+Added Pin To Net: NetName=NetR14_1 Pin=S3-1
+Added Pin To Net: NetName=NetR14_1 Pin=S3-1
+Added Net: Name=NetR14_1
+Added Pin To Net: NetName=NetR34_1 Pin=R34-1
+Added Pin To Net: NetName=NetR34_1 Pin=S6-1
+Added Pin To Net: NetName=NetR34_1 Pin=S6-1
+Added Net: Name=NetR34_1
+Added Room: Name=PC-104 16 bit bus

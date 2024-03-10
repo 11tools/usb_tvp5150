@@ -1,0 +1,41 @@
+Removed Pin From Net: NetName=PORT16 Pin=P1-16
+Removed Pin From Net: NetName=PORT18 Pin=P1-18
+Removed Pin From Net: NetName=PORT19 Pin=P1-19
+Removed Pin From Net: NetName=PORT20 Pin=P1-20
+Removed Pin From Net: NetName=PORT21 Pin=P1-21
+Removed Pin From Net: NetName=PORT22 Pin=P1-22
+Removed Pin From Net: NetName=PORT23 Pin=P1-23
+Removed Pin From Net: NetName=PORT24 Pin=P1-24
+Removed Pin From Net: NetName=VCC3.3 Pin=P1-25
+Removed Pin From Net: NetName=GND Pin=P1-26
+Change Component Footprint: Designator=P1 Old Footprint=HDR2X13H New Footprint=HDR2X9
+Change Component Comment : Designator=P1 Old Comment=Header 13X2H New Comment=Header 9X2
+Added Component: Designator=P11(HDR2X6)
+Added Pin To Net: NetName=PORT17 Pin=P11-1
+Added Pin To Net: NetName=PORT16 Pin=P11-2
+Added Pin To Net: NetName=PORT19 Pin=P11-3
+Added Pin To Net: NetName=PORT18 Pin=P11-4
+Added Pin To Net: NetName=PORT21 Pin=P11-5
+Added Pin To Net: NetName=PORT20 Pin=P11-6
+Added Pin To Net: NetName=PORT23 Pin=P11-7
+Added Pin To Net: NetName=PORT22 Pin=P11-8
+Added Pin To Net: NetName=PORT24 Pin=P11-9
+Added Pin To Net: NetName=GND Pin=P11-10
+Added Pin To Net: NetName=VCC3.3 Pin=P11-11
+Added Pin To Net: NetName=GND Pin=P11-12
+Added Member To Class: ClassName=PC-104 16 bit bus Member=Component P11 Header 6X2
+Added Room: Name=PC-104 16 bit bus
+Removed Pin From Net: NetName=PORT21 Pin=D1-2
+Added Pin To Net: NetName=PORT1 Pin=D1-2
+Removed Pin From Net: NetName=PORT22 Pin=D2-2
+Added Pin To Net: NetName=PORT2 Pin=D2-2
+Removed Pin From Net: NetName=PORT23 Pin=D3-2
+Added Pin To Net: NetName=PORT3 Pin=D3-2
+Removed Pin From Net: NetName=PORT24 Pin=D4-2
+Added Pin To Net: NetName=PORT4 Pin=D4-2
+Removed Pin From Net: NetName=PORT17 Pin=P1-17
+Added Pin To Net: NetName=VCC3.3 Pin=P1-17
+Removed Pin From Net: NetName=SD5 Pin=U2-97
+Added Pin To Net: NetName=IRQ9 Pin=U2-97
+Removed Pin From Net: NetName=IRQ9 Pin=U2-98
+Added Pin To Net: NetName=SD5 Pin=U2-98

@@ -1,0 +1,24 @@
+Protel Design System Design Rule Check
+PCB File : F:\第四版\各版本电路设计\USB_EPM1270电路第二版\PC-104 16 bit bus.PCBDOC
+Date     : 2009-7-30
+Time     : 11:44:18
+
+Processing Rule : Width Constraint (Min=0.2mm) (Max=2.254mm) (Preferred=0.6mm) (All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=0.2mm) (All),(All)
+Rule Violations :0
+
+Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
+   Violation between Track (1.016mm,-4.572mm)(3.11399mm,-4.572mm)  BottomLayer and 
+                     Pad R6_1-2(3.62199mm,-4.572mm)  BottomLayer
+   Violation between Pad 33V-1(1.016mm,-4.572mm)  MultiLayer and 
+                     Track (1.016mm,-4.572mm)(3.11399mm,-4.572mm)  BottomLayer
+Rule Violations :2
+
+Processing Rule : Broken-Net Constraint ( (All) )
+Rule Violations :0
+
+
+Violations Detected : 2
+Time Elapsed        : 00:00:00
