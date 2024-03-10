@@ -23,5 +23,5 @@ python -u yuv422_display.py 722 570  new0.bin
 
 采集的效果如图：
 
-![](https://github.com/11tools/usb_tvp5150/blob/main/show.png?raw=true)
+![](https://github.com/11tools/usb_tvp5150/blob/main/full.png?raw=true)
 
